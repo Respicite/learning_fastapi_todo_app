@@ -26,7 +26,14 @@ def get_db():
 
 
 def item_not_found():
-    raise HTTPException(status_code=404, detail="Item not found")
+    return HTTPException(status_code=404, detail="Item not found")
+
+
+def transaction_successful(status_code: int):
+    return {
+        'status': status_code,
+        'transaction': 'successful'
+    }
 
 
 @app.get("/")
@@ -39,7 +46,7 @@ async def read_todo(todo_id: int, db: Session = Depends(get_db)):
     todo_model = db.query(models.Todos).filter(models.Todos.id == todo_id).first()
     if todo_model is not None:
         return todo_model
-    item_not_found()
+    raise item_not_found()
 
 
 @app.post("/")
@@ -53,7 +60,34 @@ async def create_todo(todo: ToDo, db: Session = Depends(get_db)):
     db.add(todo_model)
     db.commit()
 
-    return {
-        'status': 201,
-        'transaction': 'successful'
-    }
+    return transaction_successful(201)
+
+
+@app.put("/{todo_id}")
+async def update_todo(todo_id: int, todo: ToDo, db: Session = Depends(get_db)):
+    todo_model = db.query(models.Todos).filter(models.Todos.id == todo_id).first()
+
+    if todo_model is None:
+        raise item_not_found()
+
+    todo_model.title = todo.title
+    todo_model.description = todo.description
+    todo_model.priority = todo.priority
+    todo_model.complete = todo.complete
+    db.add(todo_model)
+    db.commit()
+
+    return transaction_successful(200)
+
+
+@app.delete("/{todo_id}")
+async def delete_todo(todo_id: int, db: Session = Depends(get_db)):
+    todo_model = db.query(models.Todos).filter(models.Todos.id == todo_id).first()
+
+    if todo_model is None:
+        raise item_not_found()
+
+    db.delete(todo_model)
+    db.commit()
+
+    return transaction_successful(204)
