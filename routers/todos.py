@@ -1,13 +1,13 @@
 import sys
 sys.path.append("..")
 import models
+from database import engine, SessionLocal
 
 from fastapi import Depends, HTTPException, APIRouter
-from TodoApp.database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 from typing import Optional
-from TodoApp.routers.auth import get_current_user, get_user_exception
+from .auth import get_current_user, get_user_exception
 
 
 router = APIRouter(
