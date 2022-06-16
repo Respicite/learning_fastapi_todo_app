@@ -4,7 +4,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 db_string = os.environ.get('DATABASE_URL_PG')
-print(db_string)
 
 engine = create_engine(db_string)
 
